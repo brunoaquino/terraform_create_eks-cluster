@@ -1,12 +1,13 @@
 resource "aws_subnet" "eks_subnet_private_1a" {
 
   vpc_id            = aws_vpc.eks_vpc.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = format("%sa", var.region)
+  cidr_block        = var.private_subnets[0]
+  availability_zone = var.single_az_mode ? var.preferred_az : var.availability_zones[0]
 
   tags = {
     Name                                        = format("%s-subnet-private-1a", var.cluster_name),
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared",
+    "kubernetes.io/role/internal-elb"           = 1
   }
 
 }
@@ -14,12 +15,13 @@ resource "aws_subnet" "eks_subnet_private_1a" {
 resource "aws_subnet" "eks_subnet_private_1b" {
 
   vpc_id            = aws_vpc.eks_vpc.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = format("%sb", var.region)
+  cidr_block        = var.private_subnets[1]
+  availability_zone = var.single_az_mode ? var.preferred_az : var.availability_zones[1]
 
   tags = {
     Name                                        = format("%s-subnet-private-1b", var.cluster_name),
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared",
+    "kubernetes.io/role/internal-elb"           = 1
   }
 
 }

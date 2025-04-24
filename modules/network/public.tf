@@ -1,26 +1,28 @@
 resource "aws_subnet" "eks_subnet_public_1a" {
 
   vpc_id                  = aws_vpc.eks_vpc.id
-  cidr_block              = "10.0.3.0/24"
-  availability_zone       = format("%sa", var.region)
+  cidr_block              = var.public_subnets[0]
+  availability_zone       = var.single_az_mode ? var.preferred_az : var.availability_zones[0]
   map_public_ip_on_launch = true
 
   tags = {
     Name                                        = format("%s-subnet-public-1a", var.cluster_name),
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared",
+    "kubernetes.io/role/elb"                    = 1
   }
 
 }
 
 resource "aws_subnet" "eks_subnet_public_1b" {
   vpc_id                  = aws_vpc.eks_vpc.id
-  cidr_block              = "10.0.4.0/24"
-  availability_zone       = format("%sb", var.region)
+  cidr_block              = var.public_subnets[1]
+  availability_zone       = var.single_az_mode ? var.preferred_az : var.availability_zones[1]
   map_public_ip_on_launch = true
 
   tags = {
     Name                                        = format("%s-subnet-public-1b", var.cluster_name),
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared",
+    "kubernetes.io/role/elb"                    = 1
   }
 
 }

@@ -17,3 +17,23 @@ output "public_subnet_1a" {
 output "public_subnet_1b" {
   value = aws_subnet.eks_subnet_public_1b.id
 }
+
+output "database_subnet_1a" {
+  value = aws_subnet.eks_subnet_database_1a.id
+}
+
+output "database_subnet_1b" {
+  value = aws_subnet.eks_subnet_database_1b.id
+}
+
+output "private_route_table" {
+  value = aws_route_table.eks_nat_rt.id
+}
+
+output "public_route_table" {
+  value = aws_route_table.eks_public_rt.id
+}
+
+output "database_route_table" {
+  value = aws_route_table.eks_database_rt.id
+}
