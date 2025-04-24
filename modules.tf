@@ -3,6 +3,14 @@ module "network" {
 
   cluster_name = var.cluster_name
   region       = var.aws_region
+
+  vpc_cidr           = var.vpc_cidr
+  single_az_mode     = var.single_az_mode
+  preferred_az       = var.preferred_az
+  availability_zones = var.availability_zones
+  private_subnets    = var.private_subnets
+  public_subnets     = var.public_subnets
+  database_subnets   = var.database_subnets
 }
 
 
@@ -43,7 +51,8 @@ module "node" {
   nodes_instances_sizes = var.nodes_instances_sizes
   auto_scale_options    = var.auto_scale_options
 
-  auto_scale_cpu = var.auto_scale_cpu
+  auto_scale_cpu    = var.auto_scale_cpu
+  auto_scale_memory = var.auto_scale_memory
 
   depends_on = [module.master]
 
