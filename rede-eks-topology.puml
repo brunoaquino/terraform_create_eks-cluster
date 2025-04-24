@@ -1,0 +1,89 @@
+@startuml
+
+' Estilos e cores
+skinparam backgroundColor white
+skinparam componentStyle rectangle
+skinparam rectangleBorderColor #888888
+skinparam rectangleBorderThickness 1
+skinparam ArrowColor #888888
+
+' VPC principal
+rectangle "VPC (10.0.0.0/16)" as vpc {
+    ' Zona de Disponibilidade A
+    rectangle "Zona de Disponibilidade A" as zoneA {
+        rectangle "Subnet Pública 1a\n(10.0.101.0/24)" as publicSubnetA {
+            component "Internet Gateway" as igw
+            component "NAT Gateway" as natgw
+        }
+
+        rectangle "Subnet Privada 1a\n(10.0.1.0/24)" as privateSubnetA {
+            rectangle "EKS Node Group" as nodeGroupA {
+                component "Worker Node" as node1
+                component "Worker Node" as node2
+            }
+            
+            rectangle "VPC Endpoints" as endpointsA {
+                component "ECR API/DKR" as ecr
+                component "S3" as s3
+                component "CloudWatch" as logs
+            }
+        }
+
+        rectangle "Subnet Database 1a\n(10.0.201.0/24)" as dbSubnetA {
+            rectangle "Database (Isolado)" as rdsA
+        }
+    }
+
+    ' Zona de Disponibilidade B
+    rectangle "Zona de Disponibilidade B" as zoneB {
+        rectangle "Subnet Pública 1b\n(10.0.102.0/24)" as publicSubnetB {
+            ' Vazia por design
+        }
+
+        rectangle "Subnet Privada 1b\n(10.0.2.0/24)" as privateSubnetB {
+            rectangle "EKS Node Group" as nodeGroupB {
+                component "Worker Node" as node3
+                component "Worker Node" as node4
+            }
+        }
+
+        rectangle "Subnet Database 1b\n(10.0.202.0/24)" as dbSubnetB {
+            ' Vazia por design (redundância)
+        }
+    }
+
+    ' Serviços centrais
+    rectangle "EKS Cluster\nControl Plane" as eks
+    rectangle "OIDC Provider" as iam
+    rectangle "Route53" as route53
+    rectangle "Let's Encrypt\nCertificados" as acm
+}
+
+' Relacionamentos de rede
+natgw -down-> privateSubnetA
+igw <-up-> publicSubnetA
+publicSubnetB <- igw
+natgw <-up-> igw
+
+' Fluxo do EKS
+eks <-down-> nodeGroupA
+eks <-down-> nodeGroupB
+iam <-left-> eks
+acm <-left-> eks
+route53 <-left-> eks
+
+' Acessos entre subnets
+privateSubnetA <-right-> privateSubnetB
+dbSubnetA <-up- privateSubnetA
+dbSubnetB <-up- privateSubnetB
+
+' Camadas de Segurança
+note bottom of vpc
+  <b>Camadas de Segurança:</b>
+  1. Security Groups (por recurso)
+  2. Network ACLs (por subnet)
+  3. VPC Flow Logs (toda a VPC)
+  4. IAM Roles para auth via OIDC
+end note
+
+@enduml 
