@@ -22,12 +22,12 @@ resource "aws_vpc_endpoint" "ecr_api" {
   vpc_id              = aws_vpc.eks_vpc.id
   service_name        = "com.amazonaws.${var.region}.ecr.api"
   vpc_endpoint_type   = "Interface"
-  private_dns_enabled = true
   subnet_ids          = [aws_subnet.eks_subnet_private_1a.id, aws_subnet.eks_subnet_private_1b.id]
+  private_dns_enabled = true
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
 
   tags = {
-    Name = format("%s-ecr-api-endpoint", var.cluster_name)
+    Name = "${var.cluster_name}-ecr-api-endpoint"
   }
 }
 
@@ -41,7 +41,7 @@ resource "aws_vpc_endpoint" "ecr_dkr" {
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
 
   tags = {
-    Name = format("%s-ecr-dkr-endpoint", var.cluster_name)
+    Name = "${var.cluster_name}-ecr-dkr-endpoint"
   }
 }
 
@@ -53,7 +53,7 @@ resource "aws_vpc_endpoint" "s3" {
   route_table_ids   = [aws_route_table.eks_nat_rt.id]
 
   tags = {
-    Name = format("%s-s3-endpoint", var.cluster_name)
+    Name = "${var.cluster_name}-s3-endpoint"
   }
 }
 
@@ -67,7 +67,7 @@ resource "aws_vpc_endpoint" "logs" {
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
 
   tags = {
-    Name = format("%s-logs-endpoint", var.cluster_name)
+    Name = "${var.cluster_name}-logs-endpoint"
   }
 }
 
@@ -81,6 +81,17 @@ resource "aws_vpc_endpoint" "sts" {
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
 
   tags = {
-    Name = format("%s-sts-endpoint", var.cluster_name)
+    Name = "${var.cluster_name}-sts-endpoint"
+  }
+}
+
+resource "aws_vpc_endpoint" "dynamodb" {
+  vpc_id            = aws_vpc.eks_vpc.id
+  service_name      = "com.amazonaws.${var.region}.dynamodb"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = [aws_route_table.eks_nat_rt.id]
+
+  tags = {
+    Name = "${var.cluster_name}-dynamodb-endpoint"
   }
 }

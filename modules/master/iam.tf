@@ -1,5 +1,4 @@
 resource "aws_iam_role" "eks_master_role" {
-
   name = format("%s-master-role", var.cluster_name)
 
   assume_role_policy = jsonencode({
@@ -13,6 +12,9 @@ resource "aws_iam_role" "eks_master_role" {
     }]
   })
 
+  lifecycle {
+    ignore_changes = [assume_role_policy]
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "eks_cluster_cluster" {
@@ -66,6 +68,10 @@ resource "aws_iam_policy" "cert_manager_route53" {
       }
     ]
   })
+
+  lifecycle {
+    ignore_changes = [policy]
+  }
 }
 
 # Política para gerenciamento automático do DNS no Route53
@@ -95,6 +101,10 @@ resource "aws_iam_policy" "external_dns" {
       }
     ]
   })
+
+  lifecycle {
+    ignore_changes = [policy]
+  }
 }
 
 # Trust policy para permitir que cert-manager assuma este papel
@@ -120,6 +130,10 @@ data "aws_iam_policy_document" "cert_manager_assume_role" {
 resource "aws_iam_role" "cert_manager" {
   name               = format("%s-cert-manager-role", var.cluster_name)
   assume_role_policy = data.aws_iam_policy_document.cert_manager_assume_role.json
+
+  lifecycle {
+    ignore_changes = [assume_role_policy]
+  }
 }
 
 # Anexar a política ao papel
@@ -151,6 +165,10 @@ data "aws_iam_policy_document" "external_dns_assume_role" {
 resource "aws_iam_role" "external_dns" {
   name               = format("%s-external-dns-role", var.cluster_name)
   assume_role_policy = data.aws_iam_policy_document.external_dns_assume_role.json
+
+  lifecycle {
+    ignore_changes = [assume_role_policy]
+  }
 }
 
 # Anexar a política ao papel
@@ -216,6 +234,10 @@ resource "aws_iam_policy" "alb_ingress" {
       }
     ]
   })
+
+  lifecycle {
+    ignore_changes = [policy]
+  }
 }
 
 /*resource "aws_iam_policy" "policy" {

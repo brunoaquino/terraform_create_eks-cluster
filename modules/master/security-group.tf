@@ -1,7 +1,7 @@
 resource "aws_security_group" "cluster_master_sg" {
 
   name   = format("%s-master-sg", var.cluster_name)
-  vpc_id = var.cluster_vpc.id
+  vpc_id = var.cluster_vpc
 
   egress {
     from_port   = 443

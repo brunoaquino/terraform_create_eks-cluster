@@ -14,9 +14,13 @@ variable "eks_cluster" {}
 
 variable "eks_cluster_sg" {}
 
-variable "nodes_instances_sizes" {}
+variable "nodes_instances_sizes" {
+  type = list(string)
+}
 
-variable "auto_scale_options" {}
+variable "auto_scale_options" {
+  type = map(number)
+}
 
 variable "auto_scale_cpu" {}
 

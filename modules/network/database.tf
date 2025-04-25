@@ -2,26 +2,22 @@
 resource "aws_subnet" "eks_subnet_database_1a" {
   vpc_id                  = aws_vpc.eks_vpc.id
   cidr_block              = var.database_subnets[0]
-  availability_zone       = var.single_az_mode ? var.preferred_az : var.availability_zones[0]
+  availability_zone       = var.availability_zones[0]
   map_public_ip_on_launch = false
 
   tags = {
-    Name        = format("%s-subnet-database-1a", var.cluster_name)
-    Environment = "dev"
-    Type        = "isolated"
+    Name = "${var.cluster_name}-database-${var.availability_zones[0]}"
   }
 }
 
 resource "aws_subnet" "eks_subnet_database_1b" {
   vpc_id                  = aws_vpc.eks_vpc.id
   cidr_block              = var.database_subnets[1]
-  availability_zone       = var.single_az_mode ? var.preferred_az : var.availability_zones[1]
+  availability_zone       = var.availability_zones[1]
   map_public_ip_on_launch = false
 
   tags = {
-    Name        = format("%s-subnet-database-1b", var.cluster_name)
-    Environment = "dev"
-    Type        = "isolated"
+    Name = "${var.cluster_name}-database-${var.availability_zones[1]}"
   }
 }
 

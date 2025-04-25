@@ -5,8 +5,8 @@ resource "aws_launch_template" "aws_launch_template" {
     http_put_response_hop_limit = 2          # Limita hops para maior segurança
   }
 }
-resource "aws_eks_node_group" "eks_node_group" {
 
+resource "aws_eks_node_group" "cluster" {
   cluster_name    = var.cluster_name
   node_group_name = format("%s-node-group", var.cluster_name)
   node_role_arn   = aws_iam_role.eks_node_role.arn
@@ -16,16 +16,22 @@ resource "aws_eks_node_group" "eks_node_group" {
     var.private_subnet_1b
   ]
 
-  instance_types = var.nodes_instances_sizes
-
   scaling_config {
-    desired_size = lookup(var.auto_scale_options, "desired")
-    max_size     = lookup(var.auto_scale_options, "max")
-    min_size     = lookup(var.auto_scale_options, "min")
+    desired_size = var.auto_scale_options["desired"]
+    max_size     = var.auto_scale_options["max"]
+    min_size     = var.auto_scale_options["min"]
   }
 
+  instance_types = var.nodes_instances_sizes
+
+  # Configuração de tags
   tags = {
     "kubernetes.io/cluster/${var.cluster_name}" = "owned"
+  }
+
+  # Configuração de atualização
+  update_config {
+    max_unavailable = 1
   }
 
   depends_on = [
@@ -38,7 +44,6 @@ resource "aws_eks_node_group" "eks_node_group" {
     id      = aws_launch_template.aws_launch_template.id
     version = "$Latest"
   }
-
 }
 
 data "aws_eks_addon_version" "this" {
@@ -60,7 +65,7 @@ resource "aws_eks_addon" "this" {
   service_account_role_arn    = null
 
   depends_on = [
-    aws_eks_node_group.eks_node_group
+    aws_eks_node_group.cluster
   ]
 
 }

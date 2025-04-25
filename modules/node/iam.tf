@@ -2,6 +2,7 @@ resource "aws_iam_role" "eks_node_role" {
   name = format("%s-node-role", var.cluster_name)
 
   assume_role_policy = jsonencode({
+    Version = "2012-10-17"
     Statement = [{
       Action = "sts:AssumeRole"
       Effect = "Allow"
@@ -9,9 +10,11 @@ resource "aws_iam_role" "eks_node_role" {
         Service = "ec2.amazonaws.com"
       }
     }]
-    Version = "2012-10-17"
   })
 
+  lifecycle {
+    ignore_changes = [assume_role_policy]
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "eks_AmazonEKSWorkerNodePolicy" {
@@ -51,8 +54,8 @@ resource "aws_iam_policy" "node_autoscaling_policy" {
           "autoscaling:SetDesiredCapacity",
           "autoscaling:TerminateInstanceInAutoScalingGroup",
           "ec2:DescribeLaunchTemplateVersions"
-        ]
-        Effect   = "Allow"
+        ],
+        Effect   = "Allow",
         Resource = "*"
       },
       {
@@ -63,12 +66,16 @@ resource "aws_iam_policy" "node_autoscaling_policy" {
           "cloudwatch:GetMetricStatistics",
           "cloudwatch:ListMetrics",
           "cloudwatch:PutMetricData"
-        ]
-        Effect   = "Allow"
+        ],
+        Effect   = "Allow",
         Resource = "*"
       }
     ]
   })
+
+  lifecycle {
+    ignore_changes = [policy]
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "node_autoscaling_attachment" {

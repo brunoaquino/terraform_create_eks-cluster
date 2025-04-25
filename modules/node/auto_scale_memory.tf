@@ -9,7 +9,7 @@ resource "aws_cloudwatch_metric_alarm" "memory_high" {
   threshold           = var.auto_scale_memory.scale_up_threshold
 
   dimensions = {
-    ClusterName = aws_eks_node_group.eks_node_group.cluster_name
+    ClusterName = aws_eks_node_group.cluster.cluster_name
   }
 
   alarm_description = "This metric monitors memory utilization for scaling up"
@@ -21,7 +21,7 @@ resource "aws_autoscaling_policy" "scale_up_memory" {
   scaling_adjustment     = var.auto_scale_memory.scale_up_add
   adjustment_type        = "ChangeInCapacity"
   cooldown               = var.auto_scale_memory.scale_up_cooldown
-  autoscaling_group_name = aws_eks_node_group.eks_node_group.resources[0].autoscaling_groups[0].name
+  autoscaling_group_name = aws_eks_node_group.cluster.resources[0].autoscaling_groups[0].name
 }
 
 resource "aws_cloudwatch_metric_alarm" "memory_low" {
@@ -35,7 +35,7 @@ resource "aws_cloudwatch_metric_alarm" "memory_low" {
   threshold           = var.auto_scale_memory.scale_down_threshold
 
   dimensions = {
-    ClusterName = aws_eks_node_group.eks_node_group.cluster_name
+    ClusterName = aws_eks_node_group.cluster.cluster_name
   }
 
   alarm_description = "This metric monitors memory utilization for scaling down"
@@ -47,5 +47,5 @@ resource "aws_autoscaling_policy" "scale_down_memory" {
   scaling_adjustment     = var.auto_scale_memory.scale_down_remove
   adjustment_type        = "ChangeInCapacity"
   cooldown               = var.auto_scale_memory.scale_down_cooldown
-  autoscaling_group_name = aws_eks_node_group.eks_node_group.resources[0].autoscaling_groups[0].name
+  autoscaling_group_name = aws_eks_node_group.cluster.resources[0].autoscaling_groups[0].name
 }

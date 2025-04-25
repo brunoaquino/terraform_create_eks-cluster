@@ -11,19 +11,14 @@ variable "environment" {
   description = "Ambiente de implantação (dev, staging, prod)"
 }
 
+variable "base_domain" {
+  default     = "example.com"
+  description = "Domínio base para o cluster (ex: example.com). Será usado para configuração de DNS e certificados."
+}
+
 variable "vpc_cidr" {
   default     = "10.0.0.0/16"
   description = "CIDR da VPC principal"
-}
-
-variable "single_az_mode" {
-  default     = false
-  description = "Modo de zona única para economia de custos"
-}
-
-variable "preferred_az" {
-  default     = "us-east-1a"
-  description = "Zona de disponibilidade preferida quando em modo de zona única"
 }
 
 variable "availability_zones" {

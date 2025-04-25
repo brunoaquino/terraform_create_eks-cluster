@@ -1,11 +1,9 @@
 resource "aws_eks_cluster" "eks_cluster" {
-
   name     = var.cluster_name
   role_arn = aws_iam_role.eks_master_role.arn
   version  = var.k8s_version
 
   vpc_config {
-
     security_group_ids = [
       aws_security_group.cluster_master_sg.id
     ]
@@ -14,7 +12,6 @@ resource "aws_eks_cluster" "eks_cluster" {
       var.private_subnet_1a,
       var.private_subnet_1b
     ]
-
   }
 
   tags = {
@@ -25,11 +22,10 @@ resource "aws_eks_cluster" "eks_cluster" {
     aws_iam_role_policy_attachment.eks_cluster_cluster,
     aws_iam_role_policy_attachment.eks_cluster_service
   ]
-
 }
 
 resource "aws_ecr_repository" "ecr_repository" {
-  name = "my-ecr-repository"
+  name = "${var.cluster_name}-repository"
 
   image_scanning_configuration {
     scan_on_push = true
