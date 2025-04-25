@@ -7,6 +7,10 @@ resource "aws_cloudwatch_log_group" "flow_logs" {
     Name        = format("%s-flow-logs", var.cluster_name)
     Environment = "dev"
   }
+
+  lifecycle {
+    ignore_changes = [name]
+  }
 }
 
 # IAM Role para Flow Logs
