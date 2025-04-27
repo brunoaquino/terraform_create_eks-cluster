@@ -26,6 +26,25 @@ resource "aws_network_acl" "private" {
     to_port    = 65535
   }
 
+  # Regras específicas para PostgreSQL (tráfego para as subnets de database)
+  egress {
+    protocol   = "tcp"
+    rule_no    = 120
+    action     = "allow"
+    cidr_block = var.database_subnets[0]
+    from_port  = 5432
+    to_port    = 5432
+  }
+
+  egress {
+    protocol   = "tcp"
+    rule_no    = 121
+    action     = "allow"
+    cidr_block = var.database_subnets[1]
+    from_port  = 5432
+    to_port    = 5432
+  }
+
   # Permitir tráfego de entrada das subnets públicas
   ingress {
     protocol   = "tcp"
@@ -45,10 +64,29 @@ resource "aws_network_acl" "private" {
     to_port    = 65535
   }
 
-  # Permitir tráfego de retorno (para respostas de conexões iniciadas)
+  # Permitir respostas do PostgreSQL (subnets de database)
   ingress {
     protocol   = "tcp"
     rule_no    = 120
+    action     = "allow"
+    cidr_block = var.database_subnets[0]
+    from_port  = 5432
+    to_port    = 5432
+  }
+
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 121
+    action     = "allow"
+    cidr_block = var.database_subnets[1]
+    from_port  = 5432
+    to_port    = 5432
+  }
+
+  # Permitir tráfego de retorno (para respostas de conexões iniciadas)
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 130
     action     = "allow"
     cidr_block = "0.0.0.0/0"
     from_port  = 1024

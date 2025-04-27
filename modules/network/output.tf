@@ -70,3 +70,22 @@ output "route_tables" {
     database = aws_route_table.eks_database_rt.id
   }
 }
+
+# Outputs para RDS
+output "rds_security_group_id" {
+  description = "ID do security group para RDS"
+  value       = aws_security_group.rds.id
+}
+
+output "db_subnet_group_name" {
+  description = "Nome do grupo de subnets para RDS"
+  value       = aws_db_subnet_group.database.name
+}
+
+output "database_subnet_ids" {
+  description = "IDs das subnets de banco de dados"
+  value = [
+    aws_subnet.eks_subnet_database_1a.id,
+    aws_subnet.eks_subnet_database_1b.id
+  ]
+}

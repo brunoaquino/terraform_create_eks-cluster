@@ -53,3 +53,19 @@ output "node_role_arn" {
   description = "ARN da função IAM utilizada pelos nós"
   value       = module.node.node_role_arn
 }
+
+# Outputs relacionados ao RDS
+output "rds_security_group_id" {
+  description = "ID do security group para RDS"
+  value       = module.network.rds_security_group_id
+}
+
+output "db_subnet_group_name" {
+  description = "Nome do grupo de subnets para RDS"
+  value       = module.network.db_subnet_group_name
+}
+
+output "database_subnet_ids" {
+  description = "IDs das subnets para banco de dados"
+  value       = module.network.database_subnet_ids
+}
