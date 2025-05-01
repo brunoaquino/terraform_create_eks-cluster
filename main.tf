@@ -19,3 +19,15 @@ locals {
   }
 }
 
+# Recurso para garantir que o provider kubernetes seja configurado após a criação do cluster
+resource "null_resource" "eks_ready" {
+  depends_on = [
+    module.master,
+    module.node
+  ]
+
+  provisioner "local-exec" {
+    command = "aws eks update-kubeconfig --name ${module.master.cluster_name} --region ${var.aws_region}"
+  }
+}
+

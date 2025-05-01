@@ -69,3 +69,8 @@ output "database_subnet_ids" {
   description = "IDs das subnets para banco de dados"
   value       = module.network.database_subnet_ids
 }
+
+output "msk_access_role_arn" {
+  description = "ARN da função IAM para acesso ao MSK"
+  value       = module.master.msk_access_role_arn
+}

@@ -240,6 +240,80 @@ resource "aws_iam_policy" "alb_ingress" {
   }
 }
 
+# Política para permitir acesso ao MSK
+resource "aws_iam_policy" "msk_access" {
+  name        = format("%s-msk-access", var.cluster_name)
+  description = "Permite que pods no cluster acessem o MSK"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "kafka:GetBootstrapBrokers",
+          "kafka:DescribeCluster",
+          "kafka:DescribeClusterV2",
+          "kafka:ListClusters",
+          "kafka:ListClustersV2",
+          "kafka:DescribeTopics",
+          "kafka:CreateTopic",
+          "kafka:GetCompatibleKafkaVersions",
+          "kafka:ListConfigurationRevisions",
+          "kafka:ListNodes",
+          "kafka-cluster:Connect",
+          "kafka-cluster:AlterCluster",
+          "kafka-cluster:DescribeCluster",
+          "kafka-cluster:DescribeTopic",
+          "kafka-cluster:AlterTopic",
+          "kafka-cluster:WriteData",
+          "kafka-cluster:ReadData"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+
+  lifecycle {
+    ignore_changes = [policy]
+  }
+}
+
+# Trust policy para permitir que um service account específico para MSK assuma este papel
+data "aws_iam_policy_document" "msk_access_assume_role" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+    effect  = "Allow"
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub"
+      values   = ["system:serviceaccount:default:msk-access-sa"]
+    }
+
+    principals {
+      identifiers = [aws_iam_openid_connect_provider.eks.arn]
+      type        = "Federated"
+    }
+  }
+}
+
+# Papel IAM para acesso ao MSK
+resource "aws_iam_role" "msk_access" {
+  name               = format("%s-msk-access-role", var.cluster_name)
+  assume_role_policy = data.aws_iam_policy_document.msk_access_assume_role.json
+
+  lifecycle {
+    ignore_changes = [assume_role_policy]
+  }
+}
+
+# Anexar a política ao papel
+resource "aws_iam_role_policy_attachment" "msk_access" {
+  role       = aws_iam_role.msk_access.name
+  policy_arn = aws_iam_policy.msk_access.arn
+}
+
 /*resource "aws_iam_policy" "policy" {
   name        = format("%s-load-balance-controller", var.cluster_name)
   path        = "/"

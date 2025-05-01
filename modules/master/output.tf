@@ -35,3 +35,8 @@ output "external_dns_role_arn" {
   value       = aws_iam_role.external_dns.arn
   description = "ARN do papel IAM para o external-dns"
 }
+
+output "msk_access_role_arn" {
+  description = "ARN da função IAM para acesso ao MSK"
+  value       = aws_iam_role.msk_access.arn
+}
