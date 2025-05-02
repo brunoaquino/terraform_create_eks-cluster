@@ -314,6 +314,63 @@ resource "aws_iam_role_policy_attachment" "msk_access" {
   policy_arn = aws_iam_policy.msk_access.arn
 }
 
+# Política para o AWS Distro for OpenTelemetry (ADOT)
+resource "aws_iam_role_policy_attachment" "adot_policy" {
+  role       = aws_iam_role.eks_master_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonPrometheusRemoteWriteAccess"
+}
+
+# Política para o AWS Distro for OpenTelemetry (ADOT) - CloudWatch
+resource "aws_iam_role_policy_attachment" "adot_cloudwatch_policy" {
+  role       = aws_iam_role.eks_master_role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
+# Trust policy para permitir que a conta de serviço ADOT assuma este papel
+data "aws_iam_policy_document" "adot_assume_role" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+    effect  = "Allow"
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub"
+      values   = ["system:serviceaccount:opentelemetry-operator-system:opentelemetry-operator"]
+    }
+
+    principals {
+      identifiers = [aws_iam_openid_connect_provider.eks.arn]
+      type        = "Federated"
+    }
+  }
+}
+
+# Role IAM para o ADOT
+resource "aws_iam_role" "adot_role" {
+  name               = format("%s-adot-role", var.cluster_name)
+  assume_role_policy = data.aws_iam_policy_document.adot_assume_role.json
+
+  lifecycle {
+    ignore_changes = [assume_role_policy]
+  }
+}
+
+# Anexar políticas ao papel do ADOT
+resource "aws_iam_role_policy_attachment" "adot_amp_policy" {
+  role       = aws_iam_role.adot_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonPrometheusRemoteWriteAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "adot_cloudwatch_metrics_policy" {
+  role       = aws_iam_role.adot_role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "adot_xray_policy" {
+  role       = aws_iam_role.adot_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
+}
+
 /*resource "aws_iam_policy" "policy" {
   name        = format("%s-load-balance-controller", var.cluster_name)
   path        = "/"

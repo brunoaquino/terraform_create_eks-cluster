@@ -40,3 +40,13 @@ output "msk_access_role_arn" {
   description = "ARN da função IAM para acesso ao MSK"
   value       = aws_iam_role.msk_access.arn
 }
+
+output "adot_role_arn" {
+  description = "ARN da função IAM para o ADOT"
+  value       = aws_iam_role.adot_role.arn
+}
+
+output "adot_addon" {
+  description = "O addon ADOT"
+  value       = aws_eks_addon.adot
+}
