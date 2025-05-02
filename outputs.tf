@@ -74,8 +74,3 @@ output "msk_access_role_arn" {
   description = "ARN da função IAM para acesso ao MSK"
   value       = module.master.msk_access_role_arn
 }
-
-output "adot_role_arn" {
-  description = "ARN da função IAM para o ADOT"
-  value       = module.master.adot_role_arn
-}
